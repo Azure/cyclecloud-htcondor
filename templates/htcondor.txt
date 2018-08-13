@@ -1,0 +1,246 @@
+
+################################
+## Cluster Configuration File ##
+################################
+
+[cluster HTCondor]
+IconUrl = static/cloud/cluster/ui/ClusterIcon/htcondor.png
+FormLayout = selectionpanel
+Category = Schedulers
+
+Autoscale = $Autoscale
+
+    [[node defaults]]
+    UsePublicNetwork = $UsePublicNetwork
+    Credentials = $Credentials    
+    SubnetId = $SubnetId
+    Region = $Region
+    KeyPairLocation = ~/.ssh/cyclecloud.pem
+    
+        [[[configuration]]]
+        htcondor.version = $configuration_htcondor_version
+
+        [[[cluster-init cyclecloud/htcondor:default]]]
+        Optional = true
+
+    [[node master]]
+    ImageName = $MasterImageName
+    MachineType = $MasterMachineType
+    IsReturnProxy = $ReturnProxy
+    AdditionalClusterInitSpecs = $MasterClusterInitSpecs
+    
+        [[[configuration]]]
+
+        [[[cluster-init cyclecloud/htcondor:master]]]
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = $UsePublicNetwork
+
+        [[[input-endpoint ganglia]]]
+        PrivatePort = 8652
+        PublicPort = 8652
+
+
+    [[nodearray execute]]
+    ImageName = $ExecuteImageName
+    Password = $Password
+    MachineType = $ExecuteMachineType
+    MaxCoreCount = $MaxExecuteCoreCount
+
+    Interruptible = $UseLowPrio
+    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
+
+
+        [[[configuration]]]
+
+        [[[cluster-init cyclecloud/htcondor:execute]]]
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = $ExecuteNodesPublic
+
+
+[parameters About]
+Order = 1
+
+    [[parameters About HTCondor]]
+
+        [[[parameter htcondor]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template = '''
+<table cellpadding="10" cellspacing="10">
+    <tr><td>
+        <p>
+            HTCondor is a highly configurable open source workload manager. 
+            See the <a href="https://research.cs.wisc.edu/htcondor/" target="_blank">HTCondor project site</a> 
+            for an overview.
+        </p>
+    </td></tr>
+    <tr><td>
+        <p style="padding: 20px">
+            <span class="alert-warn warning">
+                <strong>IMPORTANT: You must manually upload binaries before starting this cluster for the first time</strong>
+            </span>
+        </p>
+        <p>
+            Before using the this cluster you will have to upload the 
+            HTCondor binaries into your cloud locker. Follow these steps: 
+        <p>
+        <ol>
+            <li>Go to the <a href="https://research.cs.wisc.edu/htcondor/downloads/" target="_blank">HTCondor download site</a></li>
+            <li>Determine the OS and version you would like to use.
+                <ul>
+                    <li>To view currently supported OSes, see the Master/Execute OS parameters in this template.</li>
+                    <li>You can set the HTCondor version on the Advanced Settings section. Note that the binaries in your locker <strong>must</strong> match this version.</li>
+                </ul>
+            </li>
+            <li>For each OS and version, download the HTCondor binaries (for example: condor-8.6.10-x86_64_Ubuntu16-stripped.tar.gz) and upload them to <pre style="display: inline;">blobs/htcondor</pre> inside your locker.</li>
+            <li>Check that the OS and version selections in this template match the HTCondor binaries in your locker.</li>
+        </ol>
+    </td></tr>
+    <tr><td>
+        <p>
+            <strong>Note: </strong>In the case of Windows, you will have to 
+            rename your file to not include a build number. Example: 
+            `condor-8.6.10-435200-Windows-x64.zip` should be renamed to 
+            `condor-8.6.10-Windows-x64.zip
+        </p>
+    </td></tr>
+</table>'''
+
+[parameters Required Settings]
+Order = 10
+
+    [[parameters Virtual Machines ]]
+    Description = "The cluster, in this case, has two roles: the scheduler master-node with shared filer and the execute hosts. Configure which VM types to use based on the requirements of your application."
+    Order = 20
+
+        [[[parameter Region]]]
+        Label = Region
+        Description = Deployment Location
+        ParameterType = Cloud.Region
+        DefaultValue = westus2
+
+        [[[parameter MasterMachineType]]]
+        Label = Master VM Type
+        Description = The VM type for scheduler master and shared filer.
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_D12_v2
+
+        [[[parameter ExecuteMachineType]]]
+        Label = Execute VM Type
+        Description = The VM type for execute nodes
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_F2s_v2
+        Config.Multiselect = true
+
+
+    [[parameters Auto-Scaling]]
+    Description = "The cluster can autoscale to the workload, adding execute hosts as jobs are queued. To enable this check the box below and choose the initial and maximum core counts for the cluster"
+    Order = 30
+
+        [[[parameter Autoscale]]]
+        Label = Autoscale
+        DefaultValue = true
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Start and stop execute instances automatically
+
+        [[[parameter MaxExecuteCoreCount]]]
+        Label = Max Cores
+        Description = The total number of execute cores to start
+        DefaultValue = 100
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 1
+        Config.IntegerOnly = true
+
+        [[[parameter UseLowPrio]]]
+        Label = Low Priority
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Use low priority instances for execute hosts
+
+    [[parameters Networking]]
+    Order = 40
+
+        [[[parameter SubnetId]]]
+        Label = Subnet ID
+        Description = Subnet Resource Path (ResourceGroup/VirtualNetwork/Subnet)
+        ParameterType = Azure.Subnet
+        Required = True
+
+
+[parameters Advanced Settings]
+Order = 20
+
+    [[parameters Azure Settings]]
+    Order = 10 
+
+        [[[parameter Credentials]]]
+        Description = The credentials for the cloud provider
+        ParameterType = Cloud.Credentials
+
+    [[parameters HTCondor Settings ]]
+    Description = "Section for configuring HTCondor"
+    Order = 5
+
+        [[[parameter configuration_htcondor_version]]]
+label = "HTCondor Version"
+defaultvalue = 8.6.11
+
+
+    [[parameters Software]]
+    Description = "Specify the scheduling software, and base OS installed on all nodes, and optionally the cluster-init and chef versions from your Locker."
+    Order = 10
+
+        [[[parameter MasterImageName]]]
+        Label = Master Base OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = cycle.image.centos7
+
+        [[[parameter ExecuteImageName]]]
+        Label = Execute Base OS
+        ParameterType = Cloud.Image
+        DefaultValue = cycle.image.centos7
+        Config.Filter := Package !== "cycle.image.win2016"
+
+        [[[parameter MasterClusterInitSpecs]]]
+        Label = Master Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to the master node
+        ParameterType = Cloud.ClusterInitSpecs
+    
+        [[[parameter ExecuteClusterInitSpecs]]]
+        Label = Execute Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to execute nodes
+        ParameterType = Cloud.ClusterInitSpecs
+
+        [[[parameter Password]]]
+        Label = Password
+        ParameterType = Password
+        Description = The password for the built-in local user on all nodes for direct access.
+        Conditions.Required := startswith("cycle.image.win", ExecuteImageName)
+        Conditions.Excluded := !startswith("cycle.image.win", ExecuteImageName)
+
+    [[parameters Advanced Networking]]
+    Description = Advanced networking settings
+
+        [[[parameter ReturnProxy]]]
+        Label = Return Proxy
+        DefaultValue = true
+        ParameterType = Boolean
+        Config.Label = Use SSH tunnel to connect to CycleCloud (required if direct access is blocked)
+
+        [[[parameter UsePublicNetwork]]]
+        Label = Public Head Node
+        DefaultValue = true
+        ParameterType = Boolean
+        Config.Label = Access master node from the Internet
+
+        [[[parameter ExecuteNodesPublic]]]
+        Label = Public Execute
+        DefaultValue = false
+        ParameterType = Boolean
+        Config.Label = Access execute nodes from the Internet
+        Conditions.Excluded := UsePublicNetwork isnt true
