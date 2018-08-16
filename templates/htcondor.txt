@@ -4,7 +4,6 @@
 ################################
 
 [cluster HTCondor]
-IconUrl = static/cloud/cluster/ui/ClusterIcon/htcondor.png
 FormLayout = selectionpanel
 Category = Schedulers
 
@@ -20,7 +19,7 @@ Autoscale = $Autoscale
         [[[configuration]]]
         htcondor.version = $configuration_htcondor_version
 
-        [[[cluster-init cyclecloud/htcondor:default]]]
+        [[[cluster-init htcondor:default:1.0.0]]]
         Optional = true
 
     [[node master]]
@@ -31,7 +30,7 @@ Autoscale = $Autoscale
     
         [[[configuration]]]
 
-        [[[cluster-init cyclecloud/htcondor:master]]]
+        [[[cluster-init htcondor:master:1.0.0]]]
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = $UsePublicNetwork
@@ -53,7 +52,7 @@ Autoscale = $Autoscale
 
         [[[configuration]]]
 
-        [[[cluster-init cyclecloud/htcondor:execute]]]
+        [[[cluster-init htcondor:execute:1.0.0]]]
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = $ExecuteNodesPublic
@@ -74,36 +73,6 @@ Order = 1
             HTCondor is a highly configurable open source workload manager. 
             See the <a href="https://research.cs.wisc.edu/htcondor/" target="_blank">HTCondor project site</a> 
             for an overview.
-        </p>
-    </td></tr>
-    <tr><td>
-        <p style="padding: 20px">
-            <span class="alert-warn warning">
-                <strong>IMPORTANT: You must manually upload binaries before starting this cluster for the first time</strong>
-            </span>
-        </p>
-        <p>
-            Before using the this cluster you will have to upload the 
-            HTCondor binaries into your cloud locker. Follow these steps: 
-        <p>
-        <ol>
-            <li>Go to the <a href="https://research.cs.wisc.edu/htcondor/downloads/" target="_blank">HTCondor download site</a></li>
-            <li>Determine the OS and version you would like to use.
-                <ul>
-                    <li>To view currently supported OSes, see the Master/Execute OS parameters in this template.</li>
-                    <li>You can set the HTCondor version on the Advanced Settings section. Note that the binaries in your locker <strong>must</strong> match this version.</li>
-                </ul>
-            </li>
-            <li>For each OS and version, download the HTCondor binaries (for example: condor-8.6.10-x86_64_Ubuntu16-stripped.tar.gz) and upload them to <pre style="display: inline;">blobs/htcondor</pre> inside your locker.</li>
-            <li>Check that the OS and version selections in this template match the HTCondor binaries in your locker.</li>
-        </ol>
-    </td></tr>
-    <tr><td>
-        <p>
-            <strong>Note: </strong>In the case of Windows, you will have to 
-            rename your file to not include a build number. Example: 
-            `condor-8.6.10-435200-Windows-x64.zip` should be renamed to 
-            `condor-8.6.10-Windows-x64.zip
         </p>
     </td></tr>
 </table>'''
