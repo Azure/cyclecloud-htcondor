@@ -19,7 +19,7 @@ Autoscale = $Autoscale
         [[[configuration]]]
         htcondor.version = $configuration_htcondor_version
 
-        [[[cluster-init htcondor:default:1.0.0]]]
+        [[[cluster-init htcondor:default]]]
         Optional = true
 
     [[node master]]
@@ -30,7 +30,7 @@ Autoscale = $Autoscale
     
         [[[configuration]]]
 
-        [[[cluster-init htcondor:master:1.0.0]]]
+        [[[cluster-init htcondor:master]]]
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = $UsePublicNetwork
@@ -52,7 +52,7 @@ Autoscale = $Autoscale
 
         [[[configuration]]]
 
-        [[[cluster-init htcondor:execute:1.0.0]]]
+        [[[cluster-init htcondor:execute]]]
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = $ExecuteNodesPublic
