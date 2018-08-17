@@ -1,17 +1,17 @@
 Universe = vanilla
-Executable = /bin/sleep
+Executable = c:\windows\system32\ping.exe
 Should_transfer_files = no
 Transfer_executable = false
 
 Log = results/$(Cluster).$(Process).log
 Output = results/$(Cluster).$(Process).out
 Error = results/$(Cluster).$(Process).err
-Arguments = 10
+Arguments  = -n 5 127.0.0.1
 
 Notification = Never
 Should_transfer_files = IF_NEEDED
 When_to_transfer_output = ON_EXIT
 
-Requirements = TARGET.OpSys == "Linux"
+Requirements = OpSys == "WINDOWS" && (TARGET.OpSys =!= "Linux")
 +slot_type = "execute"
 Queue 1

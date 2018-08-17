@@ -3,7 +3,7 @@ import os
 import helper
 import logging
 import re
-import jetpack.util
+import jetpack
 import time
 import shutil
 import subprocess
@@ -102,7 +102,9 @@ class TestSleep(unittest.TestCase):
         os.chown(self.resultsdir, uid, gid)
 
         # copy over submission file
-        submission_file_src = os.path.join(os.path.dirname(__file__), 'sleep.sub')
+        execute_node_is_windows = jetpack.config.get("htcondor.slot_types.execute.os", "linux").lower() == "windows"
+        sleep_name = 'win-sleep.sub' if execute_node_is_windows else 'sleep.sub'
+        submission_file_src = os.path.join(os.path.dirname(__file__), sleep_name)
         submission_file_dst = os.path.join(self.userhome, 'sleep.sub') 
         if not os.path.exists(submission_file_dst):
             shutil.copyfile(submission_file_src, submission_file_dst)
