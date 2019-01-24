@@ -154,7 +154,7 @@ Order = 20
 
         [[[parameter configuration_htcondor_version]]]
         label = "HTCondor Version"
-        defaultvalue = 8.6.12
+        defaultvalue = 8.6.13
 
 
     [[parameters Software]]
