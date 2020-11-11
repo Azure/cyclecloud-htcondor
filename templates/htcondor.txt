@@ -165,12 +165,13 @@ Order = 20
         ParameterType = Cloud.Image
         Config.OS = linux
         DefaultValue = cycle.image.centos7
+        Config.Filter := Package in {"cycle.image.centos6", "cycle.image.centos7", "cycle.image.ubuntu14", "cycle.image.ubuntu16", "cycle.image.ubuntu18"}
 
         [[[parameter ExecuteImageName]]]
         Label = Execute Base OS
         ParameterType = Cloud.Image
         DefaultValue = cycle.image.centos7
-        Config.Filter := Package !== "cycle.image.win2016"
+        Config.Filter := !(Package in {"cycle.image.win2016", "cycle.image.ubuntu18", "cycle.image.ubuntu20"})
 
         [[[parameter SchedulerClusterInitSpecs]]]
         Label = Scheduler Cluster-Init
