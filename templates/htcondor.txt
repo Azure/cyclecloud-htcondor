@@ -67,7 +67,7 @@ Order = 1
         HideLabel = true
         Config.Plugin = pico.widget.HtmlTemplateWidget
         Config.Template = '''
-<table cellpadding="10" cellspacing="10">
+<table role="presentation" cellpadding="10" cellspacing="10">
     <tr><td>
         <p>
             HTCondor is a highly configurable open source workload manager. 
